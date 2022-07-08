@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'note_for_listing.g.dart';
+
+@JsonSerializable()
 class NoteForListing {
   String noteID;
   String noteTitle;
@@ -10,4 +15,6 @@ class NoteForListing {
     required this.latestEditDateTime,
     required this.createDateTime,
   });
+
+  static const fromJson = _$NoteForListingFromJson;
 }

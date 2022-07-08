@@ -1,5 +1,6 @@
-// ignore_for_file: must_be_immutable, prefer_const_constructors
+// ignore_for_file: must_be_immutable, prefer_const_constructors, unused_field
 
+import 'package:chopper/chopper.dart';
 import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:get_it/get_it.dart';
@@ -11,10 +12,7 @@ import '../services/notes_service.dart';
 class NoteCard extends StatefulWidget {
   NoteCard({
     Key? key,
-    // required this.editTask,
   }) : super(key: key);
-
-  // Function editTask;
 
   @override
   State<NoteCard> createState() => _NoteCardState();
@@ -22,6 +20,8 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   NotesService get service => GetIt.I<NotesService>();
+  late Response<List<NoteForListing>> _apiResponse;
+  bool _isLoading = false;
 
   List<NoteForListing> notes = [];
   @override
@@ -31,8 +31,21 @@ class _NoteCardState extends State<NoteCard> {
 
   @override
   void initState() {
-    notes = service.getNotesList();
+    _fetchNotes();
     super.initState();
+  }
+
+  _fetchNotes() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _apiResponse =
+        (await service.getNotesList()) as Response<List<NoteForListing>>;
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   String formatDateTime(DateTime dateTime) {
