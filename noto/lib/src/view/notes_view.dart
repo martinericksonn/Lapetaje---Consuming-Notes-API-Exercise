@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:noto/src/widgets/note_card.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({Key? key}) : super(key: key);
@@ -77,7 +78,7 @@ class _NotesViewState extends State<NotesView> {
         // ),
         Expanded(
           child: TabBarView(children: [
-            Padding(padding: const EdgeInsets.all(18.0), child: SizedBox()
+            Padding(padding: const EdgeInsets.all(18.0), child: NoteCard()
                 //  ActiveList(
                 //   todoController: _todoController,
                 //   editTask: showEditTaskModal,
