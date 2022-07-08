@@ -10,7 +10,6 @@ NoteForListing _$NoteForListingFromJson(Map<String, dynamic> json) =>
     NoteForListing(
       noteID: json['noteID'] as String,
       noteTitle: json['noteTitle'] as String,
-      latestEditDateTime: DateTime.parse(json['latestEditDateTime'] as String),
       createDateTime: DateTime.parse(json['createDateTime'] as String),
     );
 
@@ -19,5 +18,4 @@ Map<String, dynamic> _$NoteForListingToJson(NoteForListing instance) =>
       'noteID': instance.noteID,
       'noteTitle': instance.noteTitle,
       'createDateTime': instance.createDateTime.toIso8601String(),
-      'latestEditDateTime': instance.latestEditDateTime.toIso8601String(),
     };

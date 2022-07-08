@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:noto/src/view/form.dart';
 import 'package:noto/src/widgets/note_card.dart';
 
 class NotesView extends StatefulWidget {
@@ -21,7 +22,7 @@ class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 1,
       child: Scaffold(
         appBar: appTitle(context),
         backgroundColor: Theme.of(context).primaryColor,
@@ -34,9 +35,7 @@ class _NotesViewState extends State<NotesView> {
 
   FloatingActionButton appFloatingButton(context) {
     return FloatingActionButton.extended(
-      onPressed: () => {
-        // showAddTaskModal(context)
-      },
+      onPressed: () => showAddTaskModal(context),
       label: Text(
         "Add Notes",
         style: TextStyle(
@@ -76,21 +75,28 @@ class _NotesViewState extends State<NotesView> {
         //     ],
         //   ),
         // ),
+
         Expanded(
-          child: TabBarView(children: [
-            Padding(padding: const EdgeInsets.all(18.0), child: NoteCard()
-                //  ActiveList(
-                //   todoController: _todoController,
-                //   editTask: showEditTaskModal,
-                // ),
-                ),
-            Padding(padding: const EdgeInsets.all(18.0), child: SizedBox()
-                //  FinishedTodos(
-                //   todoController: _todoController,
-                // ),
-                ),
-          ]),
-        )
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: NoteCard(),
+          ),
+        ),
+        // Expanded(
+        //   child: TabBarView(children: [
+        //     Padding(padding: const EdgeInsets.all(18.0), child: NoteCard()
+        //         //  ActiveList(
+        //         //   todoController: _todoController,
+        //         //   editTask: showEditTaskModal,
+        //         // ),
+        //         ),
+        //     Padding(padding: const EdgeInsets.all(18.0), child: SizedBox()
+        //         //  FinishedTodos(
+        //         //   todoController: _todoController,
+        //         // ),
+        //         ),
+        //   ]),
+        // )
       ]),
     );
   }
@@ -106,33 +112,30 @@ class _NotesViewState extends State<NotesView> {
               color: Theme.of(context).colorScheme.secondary),
         ),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       elevation: 0,
     );
   }
 
-  // showAddTaskModal(context) async {
-  //   Todo? task = await showModalBottomSheet(
-  //     isScrollControlled: true,
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.only(
-  //         topLeft: Radius.circular(20),
-  //         topRight: Radius.circular(20),
-  //       ),
-  //     ),
-  //     context: context,
-  //     builder: (_) {
-  //       return Padding(
-  //         padding:
-  //             EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-  //         child: TaskForm(),
-  //       );
-  //     },
-  //   );
-  //   if (task != null) {
-  //     _todoController.addTask(task.details);
-  //   }
-  // }
+  showAddTaskModal(context) async {
+    await showModalBottomSheet(
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      context: context,
+      builder: (_) {
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: TaskForm(),
+        );
+      },
+    );
+  }
 
   // showEditTaskModal(Todo todo) async {
   //   Todo? task = await showModalBottomSheet<Todo>(

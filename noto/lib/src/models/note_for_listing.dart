@@ -12,9 +12,10 @@ class NoteForListing {
   NoteForListing({
     required this.noteID,
     required this.noteTitle,
-    required this.latestEditDateTime,
     required this.createDateTime,
-  });
+    latestEditDateTimee,
+  }) : latestEditDateTime = latestEditDateTimee ?? DateTime.now();
 
-  static const fromJson = _$NoteForListingFromJson;
+  factory NoteForListing.fromJson(Map<String, dynamic> item) =>
+      _$NoteForListingFromJson(item);
 }

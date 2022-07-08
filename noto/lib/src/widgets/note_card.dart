@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
+import '../models/api_response.dart';
 import '../models/note_for_listing.dart';
 import '../services/notes_service.dart';
+import 'note_delete.dart';
 
 class NoteCard extends StatefulWidget {
   NoteCard({
@@ -20,10 +22,9 @@ class NoteCard extends StatefulWidget {
 
 class _NoteCardState extends State<NoteCard> {
   NotesService get service => GetIt.I<NotesService>();
-  late Response<List<NoteForListing>> _apiResponse;
+  late APIResponse<List<NoteForListing>> _apiResponse;
   bool _isLoading = false;
 
-  List<NoteForListing> notes = [];
   @override
   Widget build(BuildContext context) {
     return taskList();
@@ -40,8 +41,7 @@ class _NoteCardState extends State<NoteCard> {
       _isLoading = true;
     });
 
-    _apiResponse =
-        (await service.getNotesList()) as Response<List<NoteForListing>>;
+    _apiResponse = await service.getNotesList();
 
     setState(() {
       _isLoading = false;
@@ -79,33 +79,68 @@ class _NoteCardState extends State<NoteCard> {
   }
 
   Widget taskList() {
-    return ListView.builder(
-      physics: const AlwaysScrollableScrollPhysics(), //
-      shrinkWrap: true,
-      itemCount: notes.length,
-      itemBuilder: (_, index) => Dismissible(
-        key: ValueKey(notes[index].noteID),
-        onDismissed: (direction) {
-          setState(() {});
-        },
-        background: deleteBkg(index),
-        direction: DismissDirection.startToEnd,
-        child: Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(color: Colors.black),
-            ),
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  cardTitle(index, context),
-                  cardButtons(index),
-                ],
+    return Builder(builder: (_) {
+      if (_isLoading) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      if (_apiResponse.error) {
+        return Center(child: Text(_apiResponse.errorMessage));
+      }
+
+      return ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(), //
+        shrinkWrap: true,
+
+        itemCount: _apiResponse.data!.length,
+        itemBuilder: (_, index) => Dismissible(
+          key: ValueKey(_apiResponse.data![index].noteID),
+          onDismissed: (direction) {
+            setState(() {});
+          },
+          confirmDismiss: (direction) async {
+            final result = await showDialog(
+                context: context, builder: (_) => NoteDelete());
+
+            if (result) {
+              final deleteResult =
+                  await service.deleteNote(_apiResponse.data![index].noteID);
+              var message = '';
+
+              if (deleteResult.data == true) {
+                message = 'The note was deleted successfully';
+              } else {
+                message = deleteResult.errorMessage;
+              }
+              // ignore: use_build_context_synchronously
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(message),
+                  duration: Duration(milliseconds: 1000)));
+
+              return deleteResult.data ?? false;
+            }
+            print(result);
+            return result;
+          },
+          background: deleteBkg(index),
+          direction: DismissDirection.startToEnd,
+          child: Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: Colors.black),
               ),
-            )),
-      ),
-    );
+              child: IntrinsicHeight(
+                child: Row(
+                  children: [
+                    cardTitle(index, context),
+                    cardButtons(index),
+                  ],
+                ),
+              )),
+        ),
+      );
+    });
   }
 
   Padding cardButtons(int index) {
@@ -121,31 +156,6 @@ class _NoteCardState extends State<NoteCard> {
             ),
             onPressed: () {
               // widget.editTask(widget.todoController.activeTask[index]);
-            },
-          ),
-          RoundCheckBox(
-            borderColor: Colors.white,
-            checkedColor: Colors.white,
-            uncheckedWidget: Container(
-              color: Colors.white,
-              child: Icon(
-                Icons.radio_button_off_rounded,
-                color: Colors.black,
-              ),
-            ),
-            checkedWidget: Container(
-              color: Colors.white,
-              child: Icon(
-                Icons.check_circle_rounded,
-                color: Colors.black,
-              ),
-            ),
-            onTap: (selected) {
-              setState(() {
-                // widget.todoController
-                //     .toggleDone(widget.todoController.activeTask[index]);
-                // Timer(Duration(milliseconds: 1000), () {});
-              });
             },
           ),
         ],
@@ -164,7 +174,7 @@ class _NoteCardState extends State<NoteCard> {
               constraints: BoxConstraints(minHeight: 40),
               // color: Colors.pink,
               child: Text(
-                notes[index].noteTitle,
+                _apiResponse.data![index].noteTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -181,7 +191,8 @@ class _NoteCardState extends State<NoteCard> {
                     width: 10,
                   ),
                   Text(
-                    formatDateTime(notes[index].latestEditDateTime),
+                    formatDateTime(
+                        _apiResponse.data![index].latestEditDateTime),
                     style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.secondary),
