@@ -9,20 +9,28 @@ import 'package:roundcheckbox/roundcheckbox.dart';
 import '../models/api_response.dart';
 import '../models/note_for_listing.dart';
 import '../services/notes_service.dart';
+import '../view/form.dart';
 import 'note_delete.dart';
 
 class NoteCard extends StatefulWidget {
+  Function showAddTaskModal;
+  Future<dynamic> fetchNotes;
+  APIResponse<List<NoteForListing>> apiResponse;
+
   NoteCard({
     Key? key,
+    required this.showAddTaskModal,
+    required this.fetchNotes,
+    required this.apiResponse,
   }) : super(key: key);
-
   @override
   State<NoteCard> createState() => _NoteCardState();
 }
 
 class _NoteCardState extends State<NoteCard> {
   NotesService get service => GetIt.I<NotesService>();
-  late APIResponse<List<NoteForListing>> _apiResponse;
+
+  APIResponse<List<NoteForListing>> get _apiResponse => widget.apiResponse;
   bool _isLoading = false;
 
   @override
@@ -32,20 +40,8 @@ class _NoteCardState extends State<NoteCard> {
 
   @override
   void initState() {
-    _fetchNotes();
+    widget.fetchNotes;
     super.initState();
-  }
-
-  _fetchNotes() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    _apiResponse = await service.getNotesList();
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   String formatDateTime(DateTime dateTime) {
@@ -95,9 +91,7 @@ class _NoteCardState extends State<NoteCard> {
         itemCount: _apiResponse.data!.length,
         itemBuilder: (_, index) => Dismissible(
           key: ValueKey(_apiResponse.data![index].noteID),
-          onDismissed: (direction) {
-            setState(() {});
-          },
+          onDismissed: (direction) {},
           confirmDismiss: (direction) async {
             final result = await showDialog(
                 context: context, builder: (_) => NoteDelete());
@@ -119,7 +113,6 @@ class _NoteCardState extends State<NoteCard> {
 
               return deleteResult.data ?? false;
             }
-            print(result);
             return result;
           },
           background: deleteBkg(index),
@@ -134,7 +127,7 @@ class _NoteCardState extends State<NoteCard> {
                 child: Row(
                   children: [
                     cardTitle(index, context),
-                    cardButtons(index),
+                    cardButtons(context, _apiResponse.data![index].noteID),
                   ],
                 ),
               )),
@@ -143,7 +136,7 @@ class _NoteCardState extends State<NoteCard> {
     });
   }
 
-  Padding cardButtons(int index) {
+  Padding cardButtons(context, id) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
@@ -155,7 +148,9 @@ class _NoteCardState extends State<NoteCard> {
               color: Colors.black,
             ),
             onPressed: () {
-              // widget.editTask(widget.todoController.activeTask[index]);
+              widget.showAddTaskModal(context: context, id: id);
+
+              widget.fetchNotes;
             },
           ),
         ],

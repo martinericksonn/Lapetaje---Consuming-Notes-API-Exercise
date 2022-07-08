@@ -45,10 +45,11 @@ class _TaskFormState extends State<TaskForm> {
         });
 
         if (response.error) {
-          errorMessage = response.errorMessage ?? 'An error occurred';
+          errorMessage = response.errorMessage;
         }
         note = response.data;
         _titleController.text = note!.noteTitle;
+        print(_titleController.text);
         _contentController.text = note!.noteContent;
       });
     }
@@ -57,7 +58,7 @@ class _TaskFormState extends State<TaskForm> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        height: 250,
+        height: isEditing ? 525 : 250,
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Form(
@@ -69,6 +70,9 @@ class _TaskFormState extends State<TaskForm> {
                 ),
                 formTitle(),
                 formTitleField(),
+                SizedBox(
+                  height: isEditing ? 35 : 0,
+                ),
                 formButtons(context),
               ],
             ),
@@ -79,11 +83,14 @@ class _TaskFormState extends State<TaskForm> {
   Expanded formButtons(BuildContext context) {
     return Expanded(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment:
+            isEditing ? CrossAxisAlignment.start : CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               child: Text(
@@ -124,7 +131,10 @@ class _TaskFormState extends State<TaskForm> {
                           content: Text(text),
                           actions: <Widget>[
                             TextButton(
-                              child: Text('Ok'),
+                              child: Text(
+                                'Ok',
+                                style: TextStyle(color: Colors.black),
+                              ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
@@ -160,7 +170,10 @@ class _TaskFormState extends State<TaskForm> {
                           content: Text(text),
                           actions: <Widget>[
                             TextButton(
-                              child: Text('Ok'),
+                              child: Text(
+                                'Ok',
+                                style: TextStyle(color: Colors.black),
+                              ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
@@ -211,8 +224,6 @@ class _TaskFormState extends State<TaskForm> {
         },
         decoration: InputDecoration(
           label: Text("Title"),
-
-          // label:
         ),
       ),
     );
