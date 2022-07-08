@@ -15,29 +15,21 @@ class NotesService {
 
   Future<APIResponse<List<NoteForListing>>> getNotesList() {
     return http.get(Uri.parse('$API/notes'), headers: headers).then((data) {
-      print(data.statusCode);
       if (data.statusCode == 200) {
-        print("1");
         final jsonData = json.decode(data.body);
         final notes = <NoteForListing>[];
-        print(jsonData.length);
+
         for (var item in jsonData) {
-          print(item);
-          print(NoteForListing.fromJson(item));
           notes.add(NoteForListing.fromJson(item));
-          print("yes");
         }
-        print("in2");
+
         var result = APIResponse<List<NoteForListing>>(data: notes);
-        print(result);
         return result;
       }
-      print("2");
+
       return APIResponse<List<NoteForListing>>(
           error: true, errorMessage: 'An error occured');
     }).catchError((error) {
-      print("3");
-      print(error);
       APIResponse<List<NoteForListing>>(error: true, errorMessage: error);
     });
   }
